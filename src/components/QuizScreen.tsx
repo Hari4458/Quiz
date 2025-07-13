@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, CheckCircle } from 'lucide-react'
 import { Quiz } from '../lib/supabase'
+import Footer from './Footer'
 
 interface QuizScreenProps {
   quizzes: Quiz[]
@@ -153,6 +154,10 @@ export default function QuizScreen({ quizzes, onSubmit }: QuizScreenProps) {
             </div>
           </motion.div>
         </AnimatePresence>
+      </div>
+      
+      <div className="max-w-4xl mx-auto">
+        <Footer />
       </div>
     </div>
   )

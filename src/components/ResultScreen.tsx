@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { Trophy, Heart } from 'lucide-react'
 import { Quiz } from '../lib/supabase'
+import Footer from './Footer'
 
 interface ResultScreenProps {
   quizzes: Quiz[]
@@ -153,6 +154,8 @@ export default function ResultScreen({
             )
           })}
         </motion.div>
+        
+        <Footer />
       </div>
     </div>
   )
