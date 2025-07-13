@@ -155,6 +155,33 @@ export default function ResultScreen({
           })}
         </motion.div>
         
+        {/* WhatsApp Group Message */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 }}
+          className="mb-8"
+        >
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 text-center">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Thank you for participating in the IIC REC Weekend Quiz!
+            </h3>
+            <p className="text-emerald-200 mb-4">
+              To stay updated on more events, opportunities, and innovation challenges from the IIC Club REC, join our official WhatsApp group below:
+            </p>
+            <motion.a
+              href="https://chat.whatsapp.com/HAksX6PAhLn58CdI2fNNrS?mode=r_t"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-bold hover:shadow-lg transition-all duration-300"
+            >
+              Join WhatsApp Group 📱
+            </motion.a>
+          </div>
+        </motion.div>
+        
         <Footer />
       </div>
     </div>
