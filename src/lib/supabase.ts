@@ -19,7 +19,7 @@ export type Quiz = {
 export type Participant = {
   id?: string
   name: string
-  mobile_number: string
+  mobile: string
   correct_count: number
   submitted_at?: string
 }

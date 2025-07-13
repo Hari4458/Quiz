@@ -81,7 +81,7 @@ function App() {
     try {
       const participant: Participant = {
         name: participantName,
-        mobile_number: participantMobile,
+        mobile: participantMobile,
         correct_count: correctCount
       }
 
