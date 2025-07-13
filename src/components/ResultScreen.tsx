@@ -170,7 +170,7 @@ export default function ResultScreen({
               To stay updated on more events, opportunities, and innovation challenges from the IIC Club REC, join our official WhatsApp group below:
             </p>
             <motion.a
-              href="https://chat.whatsapp.com/HAksX6PAhLn58CdI2fNNrS?mode=r_t"
+              href="https://chat.whatsapp.com/L4bo2oDWrfQ0O6jDWgJUaQ"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
