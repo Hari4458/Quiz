@@ -5,130 +5,117 @@ export default function SecurityProtection() {
     // Disable right-click context menu
     const disableRightClick = (e: MouseEvent) => {
       e.preventDefault()
+      e.stopPropagation()
       return false
     }
 
-    // Disable common keyboard shortcuts
+    // Comprehensive keyboard blocking
     const disableKeyboardShortcuts = (e: KeyboardEvent) => {
-      // Disable F12 (Developer Tools)
-      if (e.key === 'F12') {
+      // Block ALL function keys
+      if (e.key.startsWith('F') && e.key.length <= 3) {
         e.preventDefault()
+        e.stopPropagation()
         return false
       }
 
-      // Disable Ctrl+Shift+I (Developer Tools)
-      if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+      // Block ALL PrintScreen variations
+      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
         e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+Shift+J (Console)
-      if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+Shift+C (Inspect Element)
-      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+U (View Source)
-      if (e.ctrlKey && e.key === 'u') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+S (Save Page)
-      if (e.ctrlKey && e.key === 's') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+A (Select All)
-      if (e.ctrlKey && e.key === 'a') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+C (Copy)
-      if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+V (Paste)
-      if (e.ctrlKey && e.key === 'v') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+X (Cut)
-      if (e.ctrlKey && e.key === 'x') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable Ctrl+P (Print)
-      if (e.ctrlKey && e.key === 'p') {
-        e.preventDefault()
-        return false
-      }
-
-      // Disable PrintScreen
-      if (e.key === 'PrintScreen') {
-        e.preventDefault()
-        // Clear clipboard
+        e.stopPropagation()
         navigator.clipboard?.writeText('')
+        document.body.style.display = 'none'
+        setTimeout(() => {
+          document.body.style.display = 'block'
+        }, 1000)
         return false
       }
 
-      // Disable Alt+PrintScreen
-      if (e.altKey && e.key === 'PrintScreen') {
+      // Block developer tools shortcuts
+      const blockedCombinations = [
+        { ctrl: true, shift: true, key: 'I' },
+        { ctrl: true, shift: true, key: 'J' },
+        { ctrl: true, shift: true, key: 'C' },
+        { ctrl: true, key: 'u' },
+        { ctrl: true, key: 'U' },
+        { ctrl: true, key: 's' },
+        { ctrl: true, key: 'S' },
+        { ctrl: true, key: 'a' },
+        { ctrl: true, key: 'A' },
+        { ctrl: true, key: 'c' },
+        { ctrl: true, key: 'C' },
+        { ctrl: true, key: 'v' },
+        { ctrl: true, key: 'V' },
+        { ctrl: true, key: 'x' },
+        { ctrl: true, key: 'X' },
+        { ctrl: true, key: 'p' },
+        { ctrl: true, key: 'P' },
+        { ctrl: true, key: 'r' },
+        { ctrl: true, key: 'R' },
+        { alt: true, key: 'PrintScreen' },
+        { meta: true, key: 'PrintScreen' },
+        { ctrl: true, key: 'PrintScreen' },
+        { shift: true, key: 'PrintScreen' },
+      ]
+
+      for (const combo of blockedCombinations) {
+        if (
+          (combo.ctrl && e.ctrlKey) ||
+          (combo.shift && e.shiftKey) ||
+          (combo.alt && e.altKey) ||
+          (combo.meta && e.metaKey)
+        ) {
+          if (e.key === combo.key || e.key.toLowerCase() === combo.key.toLowerCase()) {
+            e.preventDefault()
+            e.stopPropagation()
+            if (combo.key === 'PrintScreen') {
+              navigator.clipboard?.writeText('')
+              document.body.style.display = 'none'
+              setTimeout(() => {
+                document.body.style.display = 'block'
+              }, 1000)
+            }
+            return false
+          }
+        }
+      }
+
+      // Block Windows key combinations
+      if (e.metaKey || e.key === 'Meta') {
         e.preventDefault()
-        navigator.clipboard?.writeText('')
+        e.stopPropagation()
         return false
       }
 
-      // Disable Windows+PrintScreen
-      if (e.metaKey && e.key === 'PrintScreen') {
-        e.preventDefault()
-        navigator.clipboard?.writeText('')
-        return false
-      }
-
-      // Disable Ctrl+PrintScreen
-      if (e.ctrlKey && e.key === 'PrintScreen') {
-        e.preventDefault()
-        navigator.clipboard?.writeText('')
-        return false
-      }
-
-      // Disable Shift+PrintScreen
-      if (e.shiftKey && e.key === 'PrintScreen') {
-        e.preventDefault()
-        navigator.clipboard?.writeText('')
-        return false
-      }
+      return true
     }
 
-    // More aggressive screenshot detection
-    const detectScreenshot = () => {
-      // Monitor for rapid window focus changes (screenshot tools)
+    // Aggressive screenshot detection
+    const detectScreenshotAttempts = () => {
+      let isHidden = false
+      
+      const hideContent = () => {
+        if (!isHidden) {
+          isHidden = true
+          document.body.style.visibility = 'hidden'
+          document.body.style.opacity = '0'
+          setTimeout(() => {
+            document.body.style.visibility = 'visible'
+            document.body.style.opacity = '1'
+            isHidden = false
+          }, 2000)
+        }
+      }
+
+      // Monitor window focus changes
       let focusChangeCount = 0
       let lastFocusChange = Date.now()
 
       const handleFocusChange = () => {
         const now = Date.now()
-        if (now - lastFocusChange < 1000) {
+        if (now - lastFocusChange < 500) {
           focusChangeCount++
-          if (focusChangeCount > 3) {
-            // Potential screenshot activity detected
-            document.body.style.display = 'none'
-            setTimeout(() => {
-              document.body.style.display = 'block'
-            }, 2000)
+          if (focusChangeCount > 2) {
+            hideContent()
             focusChangeCount = 0
           }
         } else {
@@ -137,69 +124,79 @@ export default function SecurityProtection() {
         lastFocusChange = now
       }
 
+      // Monitor visibility changes
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          document.body.style.filter = 'blur(50px)'
+          document.body.style.opacity = '0.1'
+        } else {
+          setTimeout(() => {
+            document.body.style.filter = 'none'
+            document.body.style.opacity = '1'
+          }, 500)
+        }
+      }
+
+      // Monitor mouse movements for screenshot tools
+      let mouseMovements: number[] = []
+      const handleMouseMove = () => {
+        mouseMovements.push(Date.now())
+        if (mouseMovements.length > 10) {
+          mouseMovements.shift()
+        }
+        
+        // Check for suspicious mouse patterns
+        if (mouseMovements.length >= 5) {
+          const intervals = mouseMovements.slice(1).map((time, i) => time - mouseMovements[i])
+          const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length
+          if (avgInterval < 10) { // Very rapid mouse movements
+            hideContent()
+          }
+        }
+      }
+
       window.addEventListener('focus', handleFocusChange)
       window.addEventListener('blur', handleFocusChange)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      document.addEventListener('mousemove', handleMouseMove)
 
       return () => {
         window.removeEventListener('focus', handleFocusChange)
         window.removeEventListener('blur', handleFocusChange)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        document.removeEventListener('mousemove', handleMouseMove)
       }
     }
 
-    // Disable text selection
-    const disableSelection = () => {
-      document.body.style.userSelect = 'none'
-      document.body.style.webkitUserSelect = 'none'
-      document.body.style.mozUserSelect = 'none'
-      document.body.style.msUserSelect = 'none'
-    }
-
-    // Disable drag and drop
-    const disableDragDrop = (e: DragEvent) => {
-      e.preventDefault()
-      return false
-    }
-
-    // Enhanced visibility change handler
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Hide content when tab is not visible
-        document.body.style.filter = 'blur(20px)'
-        document.body.style.opacity = '0.1'
-      } else {
-        document.body.style.filter = 'none'
-        document.body.style.opacity = '1'
-      }
-    }
-
-    // Detect developer tools with multiple methods
+    // Detect developer tools with multiple aggressive methods
     const detectDevTools = () => {
-      let devtools = false
+      let devToolsOpen = false
 
-      // Method 1: Check window size differences
+      // Method 1: Console detection
+      const detectConsole = () => {
+        const element = new Image()
+        Object.defineProperty(element, 'id', {
+          get: function() {
+            devToolsOpen = true
+            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: Arial;">⚠️<br/>Unauthorized access detected.<br/>Please close developer tools and refresh the page.</div>'
+          }
+        })
+        console.log('%c', element)
+        console.clear()
+      }
+
+      // Method 2: Window size detection
       const checkWindowSize = () => {
         const threshold = 160
         if (
           window.outerHeight - window.innerHeight > threshold ||
           window.outerWidth - window.innerWidth > threshold
         ) {
-          if (!devtools) {
-            devtools = true
-            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center;">⚠️<br/>Developer tools detected.<br/>Please close them to continue.</div>'
+          if (!devToolsOpen) {
+            devToolsOpen = true
+            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: Arial;">⚠️<br/>Developer tools detected.<br/>Please close them and refresh the page.</div>'
           }
         }
-      }
-
-      // Method 2: Console detection
-      const detectConsole = () => {
-        const element = new Image()
-        Object.defineProperty(element, 'id', {
-          get: function() {
-            devtools = true
-            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center;">⚠️<br/>Console access detected.<br/>Please close developer tools.</div>'
-          }
-        })
-        console.log(element)
       }
 
       // Method 3: Debugger detection
@@ -209,196 +206,273 @@ export default function SecurityProtection() {
           debugger
           const end = performance.now()
           if (end - start > 100) {
-            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center;">⚠️<br/>Debugging detected.<br/>Please close developer tools.</div>'
+            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: Arial;">⚠️<br/>Debugging detected.<br/>Access denied.</div>'
           }
         }, 1000)
       }
 
-      setInterval(checkWindowSize, 500)
-      detectConsole()
+      // Method 4: Performance monitoring
+      const monitorPerformance = () => {
+        setInterval(() => {
+          const start = performance.now()
+          console.log('')
+          const end = performance.now()
+          if (end - start > 5) {
+            document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: Arial;">⚠️<br/>Console monitoring detected.<br/>Access denied.</div>'
+          }
+        }, 500)
+      }
+
+      setInterval(checkWindowSize, 100)
+      setInterval(detectConsole, 1000)
       detectDebugger()
+      monitorPerformance()
     }
 
-    // Monitor for screenshot-related activities
-    const monitorScreenshotActivity = () => {
+    // Disable text selection completely
+    const disableSelection = () => {
+      const style = document.createElement('style')
+      style.textContent = `
+        * {
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          user-select: none !important;
+          -webkit-touch-callout: none !important;
+          -webkit-tap-highlight-color: transparent !important;
+          -webkit-appearance: none !important;
+          -moz-appearance: none !important;
+          appearance: none !important;
+        }
+        
+        input, textarea {
+          -webkit-user-select: text !important;
+          -moz-user-select: text !important;
+          -ms-user-select: text !important;
+          user-select: text !important;
+        }
+
+        body {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          user-select: none !important;
+          -webkit-touch-callout: none !important;
+        }
+
+        /* Prevent screenshot overlays and tools */
+        body::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: transparent;
+          z-index: 999999;
+          pointer-events: none;
+          mix-blend-mode: difference;
+        }
+
+        /* Hide content when printing */
+        @media print {
+          * {
+            visibility: hidden !important;
+            display: none !important;
+          }
+          body::before {
+            content: "Screenshot/Print Protection Active" !important;
+            visibility: visible !important;
+            display: block !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            font-size: 48px !important;
+            color: black !important;
+            background: white !important;
+            padding: 50px !important;
+            border: 5px solid black !important;
+          }
+        }
+
+        /* Prevent image saving and dragging */
+        img {
+          -webkit-user-drag: none !important;
+          -khtml-user-drag: none !important;
+          -moz-user-drag: none !important;
+          -o-user-drag: none !important;
+          user-drag: none !important;
+          pointer-events: none !important;
+        }
+
+        /* Additional protection */
+        * {
+          -webkit-app-region: no-drag !important;
+          app-region: no-drag !important;
+        }
+      `
+      document.head.appendChild(style)
+      return style
+    }
+
+    // Monitor clipboard aggressively
+    const monitorClipboard = () => {
+      const clearClipboard = async () => {
+        try {
+          await navigator.clipboard.writeText('')
+        } catch (e) {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea')
+          textArea.value = ''
+          document.body.appendChild(textArea)
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+        }
+      }
+
+      // Clear clipboard every second
+      const clipboardInterval = setInterval(clearClipboard, 1000)
+
       // Monitor clipboard changes
-      let lastClipboardLength = 0
-      
-      const checkClipboard = async () => {
+      const monitorChanges = async () => {
         try {
           if (navigator.clipboard && navigator.clipboard.readText) {
             const text = await navigator.clipboard.readText()
-            if (text.length > lastClipboardLength + 100) {
-              // Potential screenshot text detected
-              await navigator.clipboard.writeText('')
+            if (text.length > 10) {
+              await clearClipboard()
+              document.body.style.display = 'none'
+              setTimeout(() => {
+                document.body.style.display = 'block'
+              }, 1000)
             }
-            lastClipboardLength = text.length
           }
         } catch (e) {
-          // Clipboard access denied - this is actually good for security
+          // Expected - clipboard access denied is good for security
         }
       }
 
-      setInterval(checkClipboard, 1000)
+      const monitorInterval = setInterval(monitorChanges, 500)
 
-      // Monitor for external screenshot tools
-      const monitorExternalTools = () => {
-        // Check for common screenshot tool processes (limited in browser)
-        const suspiciousActivity = () => {
-          // Hide content briefly when suspicious activity detected
-          document.body.style.visibility = 'hidden'
-          setTimeout(() => {
-            document.body.style.visibility = 'visible'
-          }, 100)
-        }
-
-        // Monitor for rapid key combinations that might indicate screenshot tools
-        let keySequence: string[] = []
-        const handleKeySequence = (e: KeyboardEvent) => {
-          keySequence.push(e.key)
-          if (keySequence.length > 5) {
-            keySequence.shift()
-          }
-          
-          // Check for suspicious key patterns
-          const sequence = keySequence.join('')
-          if (sequence.includes('PrintScreen') || 
-              sequence.includes('Alt') && sequence.includes('PrintScreen')) {
-            suspiciousActivity()
-          }
-        }
-
-        document.addEventListener('keydown', handleKeySequence)
-        return () => document.removeEventListener('keydown', handleKeySequence)
+      return () => {
+        clearInterval(clipboardInterval)
+        clearInterval(monitorInterval)
       }
-
-      return monitorExternalTools()
     }
 
-    // Add event listeners
-    document.addEventListener('contextmenu', disableRightClick)
-    document.addEventListener('keydown', disableKeyboardShortcuts)
-    document.addEventListener('keyup', disableKeyboardShortcuts)
-    document.addEventListener('dragstart', disableDragDrop)
-    document.addEventListener('drop', disableDragDrop)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    // Disable drag and drop completely
+    const disableDragDrop = (e: DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      return false
+    }
+
+    // Block common screenshot shortcuts at system level
+    const blockSystemShortcuts = (e: KeyboardEvent) => {
+      // Windows shortcuts
+      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+        e.preventDefault()
+        e.stopPropagation()
+        document.body.style.visibility = 'hidden'
+        setTimeout(() => {
+          document.body.style.visibility = 'visible'
+        }, 2000)
+        return false
+      }
+
+      // Mac shortcuts
+      if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) {
+        e.preventDefault()
+        e.stopPropagation()
+        document.body.style.visibility = 'hidden'
+        setTimeout(() => {
+          document.body.style.visibility = 'visible'
+        }, 2000)
+        return false
+      }
+
+      return true
+    }
+
+    // Add all event listeners
+    document.addEventListener('contextmenu', disableRightClick, { capture: true })
+    document.addEventListener('keydown', disableKeyboardShortcuts, { capture: true })
+    document.addEventListener('keyup', disableKeyboardShortcuts, { capture: true })
+    document.addEventListener('keypress', blockSystemShortcuts, { capture: true })
+    document.addEventListener('dragstart', disableDragDrop, { capture: true })
+    document.addEventListener('drop', disableDragDrop, { capture: true })
+    document.addEventListener('dragover', disableDragDrop, { capture: true })
+    document.addEventListener('selectstart', (e) => e.preventDefault(), { capture: true })
     
-    // Apply styles
-    disableSelection()
-    
-    // Start monitoring
-    const cleanupScreenshotDetection = detectScreenshot()
-    const cleanupScreenshotMonitoring = monitorScreenshotActivity()
+    // Apply protections
+    const styleElement = disableSelection()
+    const cleanupScreenshotDetection = detectScreenshotAttempts()
+    const cleanupClipboardMonitoring = monitorClipboard()
     detectDevTools()
 
-    // Add comprehensive CSS protection
-    const style = document.createElement('style')
-    style.textContent = `
-      * {
-        -webkit-user-select: none !important;
-        -moz-user-select: none !important;
-        -ms-user-select: none !important;
-        user-select: none !important;
-        -webkit-touch-callout: none !important;
-        -webkit-tap-highlight-color: transparent !important;
-        pointer-events: auto !important;
-      }
-      
-      input, textarea {
-        -webkit-user-select: text !important;
-        -moz-user-select: text !important;
-        -ms-user-select: text !important;
-        user-select: text !important;
-      }
+    // Prevent image context menu and dragging
+    const protectImages = () => {
+      const images = document.querySelectorAll('img')
+      images.forEach(img => {
+        img.addEventListener('contextmenu', (e) => e.preventDefault())
+        img.addEventListener('dragstart', (e) => e.preventDefault())
+        img.style.pointerEvents = 'none'
+        img.style.userSelect = 'none'
+      })
+    }
 
-      body {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        -webkit-user-select: none !important;
-        -moz-user-select: none !important;
-        user-select: none !important;
-      }
-
-      /* Hide content when printing */
-      @media print {
-        body * {
-          visibility: hidden !important;
-        }
-        body::before {
-          content: "Printing is not allowed" !important;
-          visibility: visible !important;
-          position: absolute !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          font-size: 24px !important;
-          color: black !important;
-        }
-      }
-
-      /* Prevent screenshot overlays */
-      body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        z-index: 9999;
-        pointer-events: none;
-        mix-blend-mode: difference;
-      }
-
-      /* Additional protection against screenshot tools */
-      @media screen {
-        body {
-          -webkit-app-region: no-drag;
-          app-region: no-drag;
-        }
-      }
-    `
-    document.head.appendChild(style)
-
-    // Prevent image saving
-    const images = document.querySelectorAll('img')
-    images.forEach(img => {
-      img.addEventListener('dragstart', (e) => e.preventDefault())
-      img.addEventListener('contextmenu', (e) => e.preventDefault())
-    })
+    protectImages()
 
     // Monitor for new images
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node instanceof HTMLImageElement) {
-            node.addEventListener('dragstart', (e) => e.preventDefault())
             node.addEventListener('contextmenu', (e) => e.preventDefault())
+            node.addEventListener('dragstart', (e) => e.preventDefault())
+            node.style.pointerEvents = 'none'
+            node.style.userSelect = 'none'
           }
         })
       })
     })
     observer.observe(document.body, { childList: true, subtree: true })
 
+    // Aggressive window monitoring
+    let windowCheckInterval = setInterval(() => {
+      // Check if window is being manipulated
+      if (window.outerWidth - window.innerWidth > 200 || 
+          window.outerHeight - window.innerHeight > 200) {
+        document.body.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; font-size: 24px; text-align: center; font-family: Arial;">⚠️<br/>Unauthorized window manipulation detected.<br/>Please refresh the page.</div>'
+      }
+    }, 100)
+
     // Cleanup function
     return () => {
-      document.removeEventListener('contextmenu', disableRightClick)
-      document.removeEventListener('keydown', disableKeyboardShortcuts)
-      document.removeEventListener('keyup', disableKeyboardShortcuts)
-      document.removeEventListener('dragstart', disableDragDrop)
-      document.removeEventListener('drop', disableDragDrop)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      document.head.removeChild(style)
+      document.removeEventListener('contextmenu', disableRightClick, { capture: true })
+      document.removeEventListener('keydown', disableKeyboardShortcuts, { capture: true })
+      document.removeEventListener('keyup', disableKeyboardShortcuts, { capture: true })
+      document.removeEventListener('keypress', blockSystemShortcuts, { capture: true })
+      document.removeEventListener('dragstart', disableDragDrop, { capture: true })
+      document.removeEventListener('drop', disableDragDrop, { capture: true })
+      document.removeEventListener('dragover', disableDragDrop, { capture: true })
+      
+      if (styleElement && styleElement.parentNode) {
+        styleElement.parentNode.removeChild(styleElement)
+      }
+      
+      cleanupScreenshotDetection()
+      cleanupClipboardMonitoring()
+      observer.disconnect()
+      clearInterval(windowCheckInterval)
+      
+      // Reset styles
       document.body.style.filter = 'none'
       document.body.style.opacity = '1'
       document.body.style.visibility = 'visible'
-      document.body.style.userSelect = ''
-      document.body.style.webkitUserSelect = ''
-      document.body.style.mozUserSelect = ''
-      document.body.style.msUserSelect = ''
-      cleanupScreenshotDetection()
-      cleanupScreenshotMonitoring()
-      observer.disconnect()
+      document.body.style.display = 'block'
     }
   }, [])
 
