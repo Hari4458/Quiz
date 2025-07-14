@@ -132,7 +132,6 @@ function App() {
 
   return (
     <ScreenProtection 
-      watermarkText="IIC Quiz - Protected Content"
       enableWarnings={true}
     >
       <AnimatePresence mode="wait">

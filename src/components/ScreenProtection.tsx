@@ -4,13 +4,11 @@ import { Shield, Eye, AlertTriangle } from 'lucide-react'
 
 interface ScreenProtectionProps {
   children: React.ReactNode
-  watermarkText?: string
   enableWarnings?: boolean
 }
 
 export default function ScreenProtection({ 
   children, 
-  watermarkText = "IIC Quiz - Protected Content",
   enableWarnings = true 
 }: ScreenProtectionProps) {
   const [isBlurred, setIsBlurred] = useState(false)
@@ -241,37 +239,6 @@ export default function ScreenProtection({
           }
         }
 
-        /* Watermark */
-        .watermark {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          pointer-events: none;
-          z-index: 9998;
-          background-image: repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 100px,
-            rgba(255, 255, 255, 0.03) 100px,
-            rgba(255, 255, 255, 0.03) 200px
-          );
-        }
-
-        .watermark::before {
-          content: "${watermarkText}";
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) rotate(-45deg);
-          font-size: 48px;
-          color: rgba(255, 255, 255, 0.05);
-          font-weight: bold;
-          white-space: nowrap;
-          z-index: 9999;
-        }
-
         /* Transparent overlay */
         .protection-overlay {
           position: fixed;
@@ -336,13 +303,10 @@ export default function ScreenProtection({
       clearInterval(devToolsInterval)
       if (warningTimeout) clearTimeout(warningTimeout)
     }
-  }, [enableWarnings, watermarkText, suspiciousActivity])
+  }, [enableWarnings, suspiciousActivity])
 
   return (
     <div className="screen-protected">
-      {/* Watermark */}
-      <div className="watermark" />
-      
       {/* Transparent overlay */}
       <div className="protection-overlay" />
       
