@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Loader2 } from 'lucide-react'
-import ScreenProtection from './components/ScreenProtection'
+import SecurityProtection from './components/SecurityProtection'
 import NameEntry from './components/NameEntry'
 import QuizScreen from './components/QuizScreen'
 import ResultScreen from './components/ResultScreen'
@@ -131,10 +131,8 @@ function App() {
   }
 
   return (
-    <ScreenProtection 
-      watermarkText="IIC Quiz - Protected Content"
-      enableWarnings={true}
-    >
+    <div className="min-h-screen">
+      <SecurityProtection />
       <AnimatePresence mode="wait">
         {currentScreen === 'name' && (
           <motion.div
@@ -193,7 +191,7 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
-    </ScreenProtection>
+    </div>
   )
 }
 
