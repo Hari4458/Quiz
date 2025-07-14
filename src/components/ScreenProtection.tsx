@@ -31,59 +31,64 @@ export default function ScreenProtection({
 
     // 2. Disable common keyboard shortcuts
     const disableKeyboardShortcuts = (e: KeyboardEvent) => {
-      // Screenshot shortcuts
-      const screenshotShortcuts = [
-        { key: 'PrintScreen' },
-        { ctrl: true, shift: true, key: 'S' }, // Chrome screenshot
-        { meta: true, shift: true, key: '3' }, // Mac full screen
-        { meta: true, shift: true, key: '4' }, // Mac selection
-        { meta: true, shift: true, key: '5' }, // Mac screenshot utility
-        { alt: true, key: 'PrintScreen' },
-        { ctrl: true, key: 'PrintScreen' },
-      ]
-
-      // Developer tools shortcuts
-      const devToolsShortcuts = [
-        { key: 'F12' },
-        { ctrl: true, shift: true, key: 'I' },
-        { ctrl: true, shift: true, key: 'J' },
-        { ctrl: true, shift: true, key: 'C' },
-        { ctrl: true, key: 'U' },
-      ]
-
-      // Other protection shortcuts
-      const otherShortcuts = [
-        { ctrl: true, key: 'S' }, // Save
-        { ctrl: true, key: 'A' }, // Select all
-        { ctrl: true, key: 'C' }, // Copy
-        { ctrl: true, key: 'V' }, // Paste
-        { ctrl: true, key: 'X' }, // Cut
-        { ctrl: true, key: 'P' }, // Print
-      ]
-
-      const allShortcuts = [...screenshotShortcuts, ...devToolsShortcuts, ...otherShortcuts]
-
-      for (const shortcut of allShortcuts) {
-        const matchesModifiers = 
-          (!shortcut.ctrl || e.ctrlKey) &&
-          (!shortcut.shift || e.shiftKey) &&
-          (!shortcut.alt || e.altKey) &&
-          (!shortcut.meta || e.metaKey)
-
-        if (matchesModifiers && (e.key === shortcut.key || e.code === shortcut.key)) {
+      // Allow ONLY Enter key and basic typing in input fields
+      const allowedKeys = ['Enter']
+      
+      // Allow typing in input fields (letters, numbers, backspace, delete, arrow keys)
+      const isInInputField = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
+      const isTypingKey = /^[a-zA-Z0-9]$/.test(e.key) || 
+                         ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(e.key)
+      
+      // Block ALL modifier keys
+      if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) {
+        // Allow Shift for capital letters in input fields only
+        if (!(e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && isInInputField && isTypingKey)) {
           e.preventDefault()
           e.stopPropagation()
-          
-          // Special handling for screenshot attempts
-          if (screenshotShortcuts.some(s => s.key === shortcut.key)) {
-            handleScreenshotAttempt()
-          } else if (enableWarnings) {
-            showWarningMessage('Keyboard shortcut disabled for security')
+          if (enableWarnings) {
+            showWarningMessage('Modifier keys are disabled for security')
           }
-          
           return false
         }
       }
+      
+      // Block ALL function keys (F1-F12)
+      if (e.key.startsWith('F') && e.key.length <= 3) {
+        e.preventDefault()
+        e.stopPropagation()
+        handleScreenshotAttempt()
+        return false
+      }
+      
+      // Block specific dangerous keys
+      const blockedKeys = [
+        'PrintScreen', 'Tab', 'Escape', 'Insert', 'Home', 'End', 'PageUp', 'PageDown',
+        'ContextMenu', 'Meta', 'OS', 'Win', 'Cmd'
+      ]
+      
+      if (blockedKeys.includes(e.key) || blockedKeys.includes(e.code)) {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+          handleScreenshotAttempt()
+        } else if (enableWarnings) {
+          showWarningMessage(`${e.key} key is disabled for security`)
+        }
+        return false
+      }
+      
+      // Allow Enter key and typing keys in input fields
+      if (allowedKeys.includes(e.key) || (isInInputField && isTypingKey)) {
+        return true
+      }
+      
+      // Block everything else
+      e.preventDefault()
+      e.stopPropagation()
+      if (enableWarnings) {
+        showWarningMessage(`${e.key} key is disabled for security`)
+      }
+      return false
     }
 
     // 3. Handle screenshot attempts
