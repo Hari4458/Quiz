@@ -57,20 +57,20 @@ export default function NameEntry({ onStart }: NameEntryProps) {
             transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center mb-4 space-x-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 space-y-4 sm:space-y-0 sm:space-x-8">
               <img 
                 src="/REC.png" 
                 alt="REC Logo" 
-                className="max-w-40 max-h-40 w-auto h-auto object-contain"
+                className="w-32 h-32 sm:w-40 sm:h-40 object-contain"
               />
               <img 
                 src="/images.png" 
                 alt="IIC Logo" 
-                className="max-w-40 max-h-40 w-auto h-auto object-contain"
+                className="w-32 h-32 sm:w-40 sm:h-40 object-contain"
               />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2">IIC Quiz Challenge</h1>
-            <p className="text-purple-200">Test your knowledge with our interactive quiz!</p>
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 px-4">IIC Quiz Challenge</h1>
+            <p className="text-purple-200 px-4">Test your knowledge with our interactive quiz!</p>
           </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -88,7 +88,7 @@ export default function NameEntry({ onStart }: NameEntryProps) {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
                   placeholder="Your name here..."
                   required
                 />
@@ -109,7 +109,7 @@ export default function NameEntry({ onStart }: NameEntryProps) {
                   type="tel"
                   value={mobile}
                   onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
                   placeholder="Your mobile number..."
                   pattern="[0-9]{10}"
                   maxLength={10}
@@ -135,7 +135,7 @@ export default function NameEntry({ onStart }: NameEntryProps) {
             >
               <motion.span
                 animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
-                className="inline-block"
+                className="inline-block text-sm sm:text-lg"
               >
                 Start Quiz ✨
               </motion.span>
