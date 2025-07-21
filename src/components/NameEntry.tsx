@@ -61,12 +61,12 @@ export default function NameEntry({ onStart }: NameEntryProps) {
               <img 
                 src="/REC.png" 
                 alt="REC Logo" 
-                className="w-32 h-32 sm:w-40 sm:h-40 object-contain"
+                className="w-40 h-40 object-contain"
               />
               <img 
                 src="/images.png" 
                 alt="IIC Logo" 
-                className="w-32 h-32 sm:w-40 sm:h-40 object-contain"
+                className="w-40 h-40 object-contain"
               />
             </div>
             <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 px-4">IIC Quiz Challenge</h1>
