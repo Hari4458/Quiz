@@ -57,11 +57,16 @@ export default function NameEntry({ onStart }: NameEntryProps) {
             transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center mb-4">
+            <div className="inline-flex items-center justify-center mb-4 space-x-8">
+              <img 
+                src="/REC.png" 
+                alt="REC Logo" 
+                className="max-w-40 max-h-40 w-auto h-auto object-contain"
+              />
               <img 
                 src="/images.png" 
                 alt="IIC Logo" 
-                className="w-20 h-20 object-contain"
+                className="max-w-40 max-h-40 w-auto h-auto object-contain"
               />
             </div>
             <h1 className="text-4xl font-bold text-white mb-2">IIC Quiz Challenge</h1>
@@ -114,7 +119,6 @@ export default function NameEntry({ onStart }: NameEntryProps) {
             </motion.div>
             <motion.button
               type="submit"
-              disabled={!name.trim() || !mobile.trim() || mobile.length < 10}
               disabled={!name.trim() || !mobile.trim() || mobile.length !== 10}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
